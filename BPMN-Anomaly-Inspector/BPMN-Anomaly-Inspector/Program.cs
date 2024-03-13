@@ -18,7 +18,7 @@ namespace BPMN_Anomaly_Inspector
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Detect Anomaly API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ISE @ NYCU :Detect Anomaly API", Version = "v1" });
                 c.OperationFilter<FileUploadOperationFilter>(); // Add this line
             });
 

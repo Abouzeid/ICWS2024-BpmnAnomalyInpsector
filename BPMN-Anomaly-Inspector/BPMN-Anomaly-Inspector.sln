@@ -5,6 +5,8 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BPMN-Anomaly-Inspector", "BPMN-Anomaly-Inspector\BPMN-Anomaly-Inspector.csproj", "{9DD1392D-28FE-4CFD-8374-E44C898485CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnomalyDection.Core", "AnomalyDection.Core\AnomalyDection.Core.csproj", "{FC0D3EB0-A926-4E5F-92FB-6E4FA665F2EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{9DD1392D-28FE-4CFD-8374-E44C898485CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DD1392D-28FE-4CFD-8374-E44C898485CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DD1392D-28FE-4CFD-8374-E44C898485CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC0D3EB0-A926-4E5F-92FB-6E4FA665F2EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC0D3EB0-A926-4E5F-92FB-6E4FA665F2EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC0D3EB0-A926-4E5F-92FB-6E4FA665F2EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC0D3EB0-A926-4E5F-92FB-6E4FA665F2EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

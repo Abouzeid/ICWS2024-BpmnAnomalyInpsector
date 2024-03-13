@@ -1,4 +1,7 @@
+using AnomalyDection.Core.ConcurrentAnomaly;
+using AnomalyDection.Core.SP_Tree;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Xml;
 
 namespace BPMN_Anomaly_Inspector.Controllers
@@ -7,14 +10,14 @@ namespace BPMN_Anomaly_Inspector.Controllers
     [Route("[controller]")]
     public class FileUploadController : ControllerBase
     {
-       
+
         private readonly ILogger<FileUploadController> _logger;
 
         public FileUploadController(ILogger<FileUploadController> logger)
         {
             _logger = logger;
         }
-      
+
         [HttpPost("UploadBPMN")]
         public async Task<IActionResult> UploadBPMN([FromForm] IFormFile file)
         {
@@ -24,21 +27,23 @@ namespace BPMN_Anomaly_Inspector.Controllers
 
             // Check for the correct file extension (.bpmn)
             if (!Path.GetExtension(file.FileName).Equals(".bpmn", StringComparison.OrdinalIgnoreCase))
-                return BadRequest("Only .bpmn files are allowed.");
+                return BadRequest(new { message = "Only bpmn is allowed!" });
 
             XmlDocument bpmnDocument = new XmlDocument();
             try
             {
+                SpTree_Node sptree = null;
                 // Load the uploaded file into XmlDocument
                 using (var stream = file.OpenReadStream())
                 {
-                    bpmnDocument.Load(stream);
+                    sptree = ConvertBpmnIntoSpTree.Parse(stream);
+                    //bpmnDocument.Load(stream);
                 }
 
-                // Optional: Process the XmlDocument here (e.g., read, validate, or extract data)
-
-                // Respond with success (and any additional info you wish to return)
-                return Ok(new { message = "BPMN file loaded successfully." });
+                StatisticalApproachToCc ccAnomaly = new StatisticalApproachToCc();
+                ccAnomaly.AOC(sptree);
+                var result = ccAnomaly.GetAnomalyResult();
+                return Content(JsonConvert.SerializeObject(result), "application/json");
             }
             catch (XmlException ex)
             {
