@@ -1,4 +1,6 @@
 
+using AnomalyDection.Core.Benchmark;
+using BenchmarkDotNet.Running;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Linq;
@@ -35,7 +37,7 @@ namespace BPMN_Anomaly_Inspector
 
 
             app.MapControllers();
-
+           
             app.Run();
         }
     }

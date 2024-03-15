@@ -11,7 +11,7 @@ using System.Xml;
 
 namespace AnomalyDection.Core.ConcurrentAnomaly
 {
-    public class StatisticalApproachToCc
+    public class OurApproachToConcurrent
     {
         private List<CMABase> anomalyResult = new List<CMABase>();
 
@@ -25,14 +25,14 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
         }
 
         /// <summary>
-        /// Detect Concurrent Anomaly new Statistial branch approach algorithm
+        /// Detect Concurrent Anomaly new Statistical branch approach algorithm
         /// </summary>
         /// <param name="spnode"></param>
         /// <returns></returns>
         public Dictionary<string, NodesOpArtifact> AOC(SpTree_Node spnode)
         {
 
-            Console.WriteLine(spnode.node_id);
+            //Console.WriteLine(spnode.node_id);
 
             if (spnode.node_type != node_types.START && spnode.node_type != node_types.END && spnode.node_type != node_types.AND)
             {
@@ -181,7 +181,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                 // Get Write and Write
                 if (artifact.Write.Count > 1)
                 {
-                    Console.WriteLine($"Concurrent Write Anomaly on Artifact ==> {key}");
+                    //Console.WriteLine($"Concurrent Write Anomaly on Artifact ==> {key}");
 
                     var cwwa = new CWWA()
                     {
@@ -191,11 +191,11 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                     };
 
 
-                    Console.WriteLine("======================CWWA================================");
+                    //Console.WriteLine("======================CWWA================================");
                     var serilaized = JsonConvert.SerializeObject(cwwa, Newtonsoft.Json.Formatting.Indented);
                    anomalyResult.Add(cwwa);
-                    Console.WriteLine(serilaized);
-                    Console.WriteLine("==========================================================");
+                    //Console.WriteLine(serilaized);
+                    //Console.WriteLine("==========================================================");
                 }
 
                 if (artifact.Write.Count > 0 && artifact.Read.Count >= 1)
@@ -232,10 +232,10 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
                     if (cwra.ReadNodes.Count > 0)
                     {
-                        Console.WriteLine("=========Write=============CWRA===============READ====");
+                        //Console.WriteLine("=========Write=============CWRA===============READ====");
                         var serilaized = JsonConvert.SerializeObject(cwra, Newtonsoft.Json.Formatting.Indented);
-                        Console.WriteLine(serilaized); anomalyResult.Add(cwra);
-                        Console.WriteLine("======================================================");
+                        //Console.WriteLine(serilaized); anomalyResult.Add(cwra);
+                        //Console.WriteLine("======================================================");
                     }
                 }
 
@@ -273,10 +273,10 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
                     if (cwka.WriteNodes.Count > 0)
                     {
-                        Console.WriteLine("=========Write=============CWKA===============Kill====");
+                        //Console.WriteLine("=========Write=============CWKA===============Kill====");
                         var serilaized = JsonConvert.SerializeObject(cwka, Newtonsoft.Json.Formatting.Indented);
-                        Console.WriteLine(serilaized); anomalyResult.Add(cwka);
-                        Console.WriteLine("======================================================");
+                        //Console.WriteLine(serilaized); anomalyResult.Add(cwka);
+                        //Console.WriteLine("======================================================");
                     }
                 }
 
@@ -314,10 +314,10 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
                     if (ckra.ReadNodes.Count > 0)
                     {
-                        Console.WriteLine("=========Write=============CWKA===============Kill=====================");
+                        //Console.WriteLine("=========Write=============CWKA===============Kill=====================");
                         var serilaized = JsonConvert.SerializeObject(ckra, Newtonsoft.Json.Formatting.Indented);
-                        Console.WriteLine(serilaized); anomalyResult.Add(ckra);
-                        Console.WriteLine("==========================================================");
+                        //Console.WriteLine(serilaized); anomalyResult.Add(ckra);
+                        //Console.WriteLine("==========================================================");
                     }
                 }
             }
