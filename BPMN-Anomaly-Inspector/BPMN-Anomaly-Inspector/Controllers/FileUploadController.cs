@@ -45,11 +45,6 @@ namespace BPMN_Anomaly_Inspector.Controllers
                     //bpmnDocument.Load(stream);
                 }
 
-                //warm up phase only three times
-                MeasureAndLogApproaches(3, sptree);
-
-                MeasureAndLogApproaches(10, sptree);
-
                 string result = string.Empty;
                 if (isPrevApproach)
                 {

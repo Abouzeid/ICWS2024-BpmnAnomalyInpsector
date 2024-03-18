@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_15v4p1l" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.22.0-dev" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
+  <bpmn:process id="Process_0d37kzc" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:startEvent id="startNode" name="startNode">
+      <bpmn:outgoing>Flow_1lpci0x</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent" name="EndEvent">
+      <bpmn:incoming>Flow_1pgzszf</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:parallelGateway id="AND_1">
+      <bpmn:incoming>Flow_1lpci0x</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bnj3r3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0efjeh1</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:parallelGateway id="AND_2">
+      <bpmn:incoming>Flow_0c45fom</bpmn:incoming>
+      <bpmn:outgoing>Flow_0urj7gx</bpmn:outgoing>
+      <bpmn:outgoing>Flow_07485h5</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:parallelGateway id="Gateway_1pwkdme">
+      <bpmn:incoming>Flow_18b95db</bpmn:incoming>
+      <bpmn:incoming>Flow_17wsb8w</bpmn:incoming>
+      <bpmn:outgoing>Flow_10dzw0x</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:parallelGateway id="Gateway_1eea60s">
+      <bpmn:incoming>Flow_0k44z7g</bpmn:incoming>
+      <bpmn:incoming>Flow_10dzw0x</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pgzszf</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_1lpci0x" sourceRef="startNode" targetRef="AND_1" />
+    <bpmn:sequenceFlow id="Flow_1pgzszf" sourceRef="Gateway_1eea60s" targetRef="EndEvent" />
+    <bpmn:sequenceFlow id="Flow_1bnj3r3" sourceRef="AND_1" targetRef="Activity_CheckStock" />
+    <bpmn:sequenceFlow id="Flow_0efjeh1" name="AND1" sourceRef="AND_1" targetRef="Activity_CustomerService" />
+    <bpmn:sequenceFlow id="Flow_0c45fom" sourceRef="Activity_CheckStock" targetRef="AND_2" />
+    <bpmn:sequenceFlow id="Flow_0k44z7g" sourceRef="Activity_CustomerService" targetRef="Gateway_1eea60s" />
+    <bpmn:sequenceFlow id="Flow_0urj7gx" sourceRef="AND_2" targetRef="Activity_GetAddress" />
+    <bpmn:sequenceFlow id="Flow_07485h5" name="AND2" sourceRef="AND_2" targetRef="Activity_EmitInvoice" />
+    <bpmn:sequenceFlow id="Flow_10dzw0x" sourceRef="Gateway_1pwkdme" targetRef="Gateway_1eea60s" />
+    <bpmn:sequenceFlow id="Flow_18b95db" sourceRef="Activity_ShipProduct" targetRef="Gateway_1pwkdme" />
+    <bpmn:sequenceFlow id="Flow_0q7dhw8" sourceRef="Activity_EmitInvoice" targetRef="Activity_ReceivePayment" />
+    <bpmn:sequenceFlow id="Flow_17wsb8w" sourceRef="Activity_ReceivePayment" targetRef="Gateway_1pwkdme" />
+    <bpmn:sequenceFlow id="Flow_091jnqe" sourceRef="Activity_GetAddress" targetRef="Activity_ShipProduct" />
+    <bpmn:serviceTask id="Activity_CheckStock" name="Check Stock Availability">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="order">"Buy Car"</camunda:inputParameter>
+          <camunda:outputParameter name="product_details">"HONDA"</camunda:outputParameter>
+          <camunda:outputParameter name="spport_ticket">"to customer"</camunda:outputParameter>
+        </camunda:inputOutput>
+        <camunda:connector>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1bnj3r3</bpmn:incoming>
+      <bpmn:outgoing>Flow_0c45fom</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_CustomerService" name="Customer Service and Support">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="product_details">"HOND"</camunda:inputParameter>
+          <camunda:inputParameter name="order">"the order"</camunda:inputParameter>
+          <camunda:outputParameter name="spport_ticket" />
+        </camunda:inputOutput>
+        <camunda:connector>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0efjeh1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0k44z7g</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_GetAddress" name="Get Shipping Address">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="order">"data"</camunda:inputParameter>
+          <camunda:outputParameter name="address">"shipping address"</camunda:outputParameter>
+        </camunda:inputOutput>
+        <camunda:connector>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0urj7gx</bpmn:incoming>
+      <bpmn:outgoing>Flow_091jnqe</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_EmitInvoice" name="Emit Invoice">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="order">"dfa"</camunda:inputParameter>
+          <camunda:inputParameter name="invoice" />
+          <camunda:outputParameter name="invoice">"Product Info"</camunda:outputParameter>
+          <camunda:outputParameter name="price">"sdfa"</camunda:outputParameter>
+          <camunda:outputParameter name="support_ticket" />
+          <camunda:outputParameter name="pay_method">"from customer"</camunda:outputParameter>
+        </camunda:inputOutput>
+        <camunda:connector>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_07485h5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0q7dhw8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_ReceivePayment" name="Receive Payment">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="pay_method" />
+          <camunda:inputParameter name="price" />
+          <camunda:outputParameter name="order">"Product Info"</camunda:outputParameter>
+        </camunda:inputOutput>
+        <camunda:connector>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0q7dhw8</bpmn:incoming>
+      <bpmn:outgoing>Flow_17wsb8w</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_ShipProduct" name="Ship Product">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="address">"customer address"</camunda:inputParameter>
+          <camunda:inputParameter name="product_detials" />
+          <camunda:outputParameter name="order">"updated"</camunda:outputParameter>
+          <camunda:outputParameter name="product_details">updateses</camunda:outputParameter>
+        </camunda:inputOutput>
+        <camunda:connector>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_091jnqe</bpmn:incoming>
+      <bpmn:outgoing>Flow_18b95db</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0d37kzc">
+      <bpmndi:BPMNShape id="BPMNShape_1vng655" bpmnElement="startNode">
+        <dc:Bounds x="192" y="322" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="187" y="365" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0uqh78w" bpmnElement="AND_1">
+        <dc:Bounds x="306" y="315" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_11552qb" bpmnElement="AND_2">
+        <dc:Bounds x="566" y="205" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_143lvg6" bpmnElement="Gateway_1pwkdme">
+        <dc:Bounds x="945" y="205" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fmn5wg_di" bpmnElement="Activity_CheckStock">
+        <dc:Bounds x="411" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1fv8sci_di" bpmnElement="Activity_CustomerService">
+        <dc:Bounds x="460" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1pdaobp_di" bpmnElement="Activity_GetAddress">
+        <dc:Bounds x="651" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1kqbip1_di" bpmnElement="Activity_EmitInvoice">
+        <dc:Bounds x="651" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09j23fv_di" bpmnElement="Activity_ReceivePayment">
+        <dc:Bounds x="810" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_045vhjq_di" bpmnElement="Activity_ShipProduct">
+        <dc:Bounds x="810" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0qf345f" bpmnElement="Gateway_1eea60s">
+        <dc:Bounds x="1025" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0p559ea" bpmnElement="EndEvent">
+        <dc:Bounds x="1132" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1126" y="345" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1lpci0x_di" bpmnElement="Flow_1lpci0x">
+        <di:waypoint x="228" y="340" />
+        <di:waypoint x="306" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1v9muk3" bpmnElement="Flow_1pgzszf">
+        <di:waypoint x="1075" y="320" />
+        <di:waypoint x="1132" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1f4uswb" bpmnElement="Flow_1bnj3r3">
+        <di:waypoint x="331" y="315" />
+        <di:waypoint x="331" y="230" />
+        <di:waypoint x="411" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1s1akzd" bpmnElement="Flow_0efjeh1">
+        <di:waypoint x="331" y="365" />
+        <di:waypoint x="331" y="390" />
+        <di:waypoint x="460" y="390" />
+        <bpmndi:BPMNLabel color:color="#0d4372">
+          <dc:Bounds x="299" y="362" width="29" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1kkidia" bpmnElement="Flow_0c45fom">
+        <di:waypoint x="511" y="230" />
+        <di:waypoint x="566" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1qzgiw1" bpmnElement="Flow_0k44z7g">
+        <di:waypoint x="560" y="390" />
+        <di:waypoint x="1050" y="390" />
+        <di:waypoint x="1050" y="345" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1bg4smc" bpmnElement="Flow_0urj7gx">
+        <di:waypoint x="591" y="205" />
+        <di:waypoint x="591" y="160" />
+        <di:waypoint x="651" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0ncerro" bpmnElement="Flow_07485h5">
+        <di:waypoint x="591" y="255" />
+        <di:waypoint x="591" y="320" />
+        <di:waypoint x="651" y="320" />
+        <bpmndi:BPMNLabel color:color="#0d4372">
+          <dc:Bounds x="560" y="253" width="29" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0cps5qn" bpmnElement="Flow_10dzw0x">
+        <di:waypoint x="995" y="230" />
+        <di:waypoint x="1050" y="230" />
+        <di:waypoint x="1050" y="295" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18b95db_di" bpmnElement="Flow_18b95db">
+        <di:waypoint x="910" y="160" />
+        <di:waypoint x="970" y="160" />
+        <di:waypoint x="970" y="205" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0q7dhw8_di" bpmnElement="Flow_0q7dhw8">
+        <di:waypoint x="751" y="320" />
+        <di:waypoint x="810" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17wsb8w_di" bpmnElement="Flow_17wsb8w">
+        <di:waypoint x="910" y="320" />
+        <di:waypoint x="970" y="320" />
+        <di:waypoint x="970" y="255" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_091jnqe_di" bpmnElement="Flow_091jnqe">
+        <di:waypoint x="751" y="160" />
+        <di:waypoint x="810" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

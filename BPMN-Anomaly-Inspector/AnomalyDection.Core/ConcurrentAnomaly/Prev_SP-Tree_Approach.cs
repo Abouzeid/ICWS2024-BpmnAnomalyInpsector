@@ -1,4 +1,5 @@
 ﻿using AnomalyDection.Core.SP_Tree;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,7 +89,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                         {
                             branch_artifact_set[i] = Original_sptree_CAD(spnode.right_child[i]);
                             spnode.artifact_set.AddRange(branch_artifact_set[i]);
-                        }                      
+                        }
 
                         for (int i = 0; i < branch_artifact_set.Length; i++)
                         {
@@ -167,26 +168,33 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
     public class BaseConCurnt
     {
+        [JsonProperty(PropertyName = "ArtifactId")]
         public string artifactId { get; set; }
+        public string Type { get; set; } = "Concurrent";
     }
 
     public class CCA1 : BaseConCurnt
     {
+        [JsonProperty(PropertyName = "WriteNode")]
         public string WriteNode1 { get; set; }
+        [JsonProperty(PropertyName = "WriteNode2")]
         public string WriteNode2 { get; set; }
-        public string Type { get; set; } = "CCA1";
+        public string Code { get; set; } = "CCA1";
+
     }
+
     public class CCA2 : BaseConCurnt
     {
         public string WriteNode { get; set; }
         public string KillNode { get; set; }
-        public string Type { get; set; } = "CCA2";
+        public string Code { get; set; } = "CCA2";
     }
+
     public class CCA3 : BaseConCurnt
     {
         public string ReadNode { get; set; }
         public string KillNode { get; set; }
-        public string Type { get; set; } = "CCA3";
+        public string Code { get; set; } = "CCA3";
     }
 
 }

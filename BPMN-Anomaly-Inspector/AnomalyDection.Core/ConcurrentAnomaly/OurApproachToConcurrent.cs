@@ -45,7 +45,29 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                             spnode.ArtifactOpMap.Add(item.artifact_id, new NodesOpArtifact());
                         }
 
-                        CheckIfItemOperationsAre_Kill_Write_Read(spnode, item);
+                        if (item.operation == operation_types.Read)
+                        {
+                            if (spnode.ArtifactOpMap[item.artifact_id].ReadNodes == null)
+                                spnode.ArtifactOpMap[item.artifact_id].ReadNodes = new List<string>() { spnode.node_id };
+                            else
+                                spnode.ArtifactOpMap[item.artifact_id].ReadNodes?.Add(spnode.node_id);
+                        }
+
+                        if (item.operation == operation_types.Kill)
+                        {
+                            if (spnode.ArtifactOpMap[item.artifact_id].KillNodes == null)
+                                spnode.ArtifactOpMap[item.artifact_id].KillNodes = new List<string>() { spnode.node_id };
+                            else
+                                spnode.ArtifactOpMap[item.artifact_id].KillNodes?.Add(spnode.node_id);
+                        }
+
+                        if (item.operation == operation_types.Write)
+                        {
+                            if (spnode.ArtifactOpMap[item.artifact_id].WriteNodes == null)
+                                spnode.ArtifactOpMap[item.artifact_id].WriteNodes = new List<string>() { spnode.node_id };
+                            else
+                                spnode.ArtifactOpMap[item.artifact_id].WriteNodes?.Add(spnode.node_id);
+                        }
                     }
                 }
             }
@@ -142,34 +164,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                     break;
             }
             return null;
-        }
-
-        private static void CheckIfItemOperationsAre_Kill_Write_Read(SpTree_Node spnode, SpTree_Node.Opt_Element item)
-        {
-            if (item.operation == operation_types.Read)
-            {
-                if (spnode.ArtifactOpMap[item.artifact_id].ReadNodes == null)
-                    spnode.ArtifactOpMap[item.artifact_id].ReadNodes = new List<string>() { spnode.node_id };
-                else
-                    spnode.ArtifactOpMap[item.artifact_id].ReadNodes?.Add(spnode.node_id);
-            }
-
-            if (item.operation == operation_types.Kill)
-            {
-                if (spnode.ArtifactOpMap[item.artifact_id].KillNodes == null)
-                    spnode.ArtifactOpMap[item.artifact_id].KillNodes = new List<string>() { spnode.node_id };
-                else
-                    spnode.ArtifactOpMap[item.artifact_id].KillNodes?.Add(spnode.node_id);
-            }
-
-            if (item.operation == operation_types.Write)
-            {
-                if (spnode.ArtifactOpMap[item.artifact_id].WriteNodes == null)
-                    spnode.ArtifactOpMap[item.artifact_id].WriteNodes = new List<string>() { spnode.node_id };
-                else
-                    spnode.ArtifactOpMap[item.artifact_id].WriteNodes?.Add(spnode.node_id);
-            }
-        }
+        }      
 
         private void DetectFor_Current_AND(SpTree_Node and_spnode, Dictionary<string, BranchesInfo> andBranchesStats)
         {
@@ -192,7 +187,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
 
                     //Console.WriteLine("======================CWWA================================");
-                    var serilaized = JsonConvert.SerializeObject(cwwa, Newtonsoft.Json.Formatting.Indented);
+                  //  var serilaized = JsonConvert.SerializeObject(cwwa, Newtonsoft.Json.Formatting.Indented);
                    anomalyResult.Add(cwwa);
                     //Console.WriteLine(serilaized);
                     //Console.WriteLine("==========================================================");
@@ -233,8 +228,9 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                     if (cwra.ReadNodes.Count > 0)
                     {
                         //Console.WriteLine("=========Write=============CWRA===============READ====");
-                        var serilaized = JsonConvert.SerializeObject(cwra, Newtonsoft.Json.Formatting.Indented);
-                        //Console.WriteLine(serilaized); anomalyResult.Add(cwra);
+                       // var serilaized = JsonConvert.SerializeObject(cwra, Newtonsoft.Json.Formatting.Indented);
+                        anomalyResult.Add(cwra);
+                        //Console.WriteLine(serilaized);
                         //Console.WriteLine("======================================================");
                     }
                 }
@@ -274,8 +270,9 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                     if (cwka.WriteNodes.Count > 0)
                     {
                         //Console.WriteLine("=========Write=============CWKA===============Kill====");
-                        var serilaized = JsonConvert.SerializeObject(cwka, Newtonsoft.Json.Formatting.Indented);
-                        //Console.WriteLine(serilaized); anomalyResult.Add(cwka);
+                       // var serilaized = JsonConvert.SerializeObject(cwka, Newtonsoft.Json.Formatting.Indented);
+                        anomalyResult.Add(cwka);
+                        //Console.WriteLine(serilaized); 
                         //Console.WriteLine("======================================================");
                     }
                 }
@@ -315,8 +312,9 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                     if (ckra.ReadNodes.Count > 0)
                     {
                         //Console.WriteLine("=========Write=============CWKA===============Kill=====================");
-                        var serilaized = JsonConvert.SerializeObject(ckra, Newtonsoft.Json.Formatting.Indented);
-                        //Console.WriteLine(serilaized); anomalyResult.Add(ckra);
+                        //var serilaized = JsonConvert.SerializeObject(ckra, Newtonsoft.Json.Formatting.Indented);
+                        anomalyResult.Add(ckra);
+                        //Console.WriteLine(serilaized); 
                         //Console.WriteLine("==========================================================");
                     }
                 }
