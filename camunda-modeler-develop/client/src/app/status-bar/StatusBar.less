@@ -1,0 +1,98 @@
+:root {
+  --status-bar-background-color: var(--color-grey-225-10-85);
+  --status-bar-border-color: var(--color-grey-225-10-75);
+  --status-bar-font-color: var(--color-grey-225-10-15);
+  --status-bar-icon-font-color: var(--color-grey-225-10-35);
+  --status-bar-focus-background-color: var(--color-grey-225-10-80);
+  --status-bar-hover-background-color: var(--color-grey-225-10-80);
+  --status-bar-active-background-color: var(--color-grey-225-10-75);
+  --status-bar-active-hover-background-color: var(--color-grey-225-10-75);
+  --status-bar-active-font-color: var(--color-grey-225-10-15);
+  --status-bar-active-icon-font-color: var(--color-grey-225-10-35);
+  --status-bar-font-size: var(--font-size-default);
+}
+
+:local(.StatusBar) {
+  display: flex;
+  flex-flow: row;
+  align-items: stretch;
+  flex: none;
+  z-index: 1000;
+  height: 32px;
+  padding: 0;
+
+  background-color: var(--status-bar-background-color);
+  border-top: 1px solid var(--status-bar-border-color);
+  color: var(--status-bar-font-color);
+  font-size: var(--status-bar-font-size);
+  line-height: 28px;
+
+  .status-bar__file {
+    flex: 1;
+  }
+
+  .status-bar__file,
+  .status-bar__app {
+    display: flex;
+    flex-flow: row;
+    align-items: stretch;
+
+    &>* {
+      padding: 0 10px;
+      margin: 0;
+    }
+  }
+
+  button {
+    padding-bottom: 1px !important;
+  }
+
+  .btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    min-width: unset;
+    height: unset;
+
+    border: 0;
+    border-radius: 0;
+
+    color: inherit;
+    background-color: inherit;
+    font-weight: normal;
+    font-size: inherit;
+    font-family: inherit;
+
+    svg {
+      color: var(--status-bar-icon-font-color);
+    }
+
+    &:hover {
+      background-color: var(--status-bar-hover-background-color);
+    }
+
+    &.btn--active {
+      color: var(--status-bar-active-font-color);
+      background-color: var(--status-bar-active-background-color);
+
+      svg {
+        color: var(--status-bar-active-icon-font-color);
+      }
+    }
+
+    &.btn--active:hover {
+      background-color: var(--status-bar-active-hover-background-color);
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+      background-color: var(--status-bar-focus-background-color);
+    }
+  }
+
+  .btn + .btn {
+    margin-left: 1px;
+  }
+}

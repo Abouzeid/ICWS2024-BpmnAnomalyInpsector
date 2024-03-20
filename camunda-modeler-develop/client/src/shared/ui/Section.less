@@ -1,0 +1,48 @@
+:local(.Section) {
+  --section-max-height: initial;
+
+  display: flex;
+  flex-direction: column;
+  max-height: var(--section-max-height);
+  flex: inherit;
+
+  .section__body {
+    padding: 12px 12px 0 12px;
+    margin-bottom: 12px;
+  }
+
+  .section__body:not(:first-child) {
+    padding-top: 0px;
+  }
+
+  .section__header {
+    padding: 12px;
+    margin: 0;
+    font-size: inherit;
+    font-weight: 500;
+    color: var(--overlay-title-color);
+  }
+
+  .section__body {
+    font-size: inherit;
+    overflow-y: auto;
+
+    p, ul, ol {
+      margin: 0 0 15px 0;
+    }
+
+    p:last-child,
+    ul:last-child,
+    ol:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .section__actions .btn {
+    margin-top: 8px;
+  }
+
+  & + :local(.Section) {
+    border-top: 1px solid var(--overlay-border-color);
+  }
+}
