@@ -1,3 +1,6 @@
+/* eslint-disable license-header/header */
+/* eslint-disable spaced-comment */
+/* eslint-disable indent */
 /**
  * Copyright Camunda Services GmbH and/or licensed to Camunda Services GmbH
  * under one or more contributor license agreements. See the NOTICE file
@@ -32,6 +35,26 @@ export default class CamundaAPI {
       tenantId,
       attachments = []
     } = deployment;
+
+    var hasAnomaly = await this.checkArtifactAnomaly(diagram);
+
+    // var data = new FormData();
+    //data.append('file', new Blob([ diagram.contents ]), diagram.name);
+    //var xhr = new XMLHttpRequest();
+
+    //xhr.withCredentials = true;
+    //xhr.addEventListener('readystatechange', function() {
+    //  if (this.readyState === 4) {
+    //    console.log(this.responseText);
+    //  }
+    //});
+
+    //xhr.open('POST', 'http://localhost:5159/FileUpload/UploadBPMN');
+    //xhr.send(data);
+
+    if (!hasAnomaly) {
+
+      // Origina Deployment code
 
     const form = new FormData();
 
@@ -76,7 +99,292 @@ export default class CamundaAPI {
 
     const body = await this.parse(response);
 
-    throw new DeploymentError(response, body);
+    throw new DeploymentError(response, body);}
+  }
+
+  async checkArtifactAnomaly(diagram) {
+  var data = new FormData();
+  data.append('file', new Blob([ diagram.contents ]), diagram.name);
+
+  try {
+    const response = await fetch('http://localhost:5159/FileUpload/UploadBPMN?isPrevApproach=false', {
+      method: 'POST',
+      body: data,
+      credentials: 'include' // for CORS and sending cookies, similar to xhr.withCredentials = true;
+    });
+
+    const jsonResponse = await response.json();
+
+   this.OurApproachTableWithData(jsonResponse, 'error');
+
+     // this.PrevMethodRenderTable(jsonResponse);
+
+    if (!response.ok) {
+
+     // this.tempAlert(`Artifact_Anomaly_Detector: ${JSON.stringify(jsonResponse)}`, 'error');
+
+      //this.displayJsonAsTable(jsonResponse, 'error');
+      return true;
+
+      // throw new DeploymentError(response, await this.parse(response));
+    }
+    return false;
+
+    //throw new AnomalyError('Some anomaly details', JSON.stringify(jsonResponse));
+
+    // alert(`Artifact_Anomaly_Detector: ${JSON.stringify(jsonResponse)}`);
+
+    //this.tempAlert(`Artifact_Anomaly_Detector: ${JSON.stringify(jsonResponse)}`, 'error', 10000);
+  } catch (error) {
+
+    //this.tempAlert(`Error: ${error.message}`, 'error');
+    alert(`Artifact_Anomaly_Detector: ${error}`);
+  }
+  }
+
+  async tempAlert(msg, type) {
+
+    var el = document.createElement('div');
+    el.setAttribute('style', `
+    position: fixed; 
+    bottom: 10%; 
+    left: 50%; 
+    transform: translateX(-50%);
+    background-color: ${type === 'error' ? '#ffdddd' : '#ddffdd'}; 
+    color: ${type === 'error' ? '#d8000c' : '#006400'}; 
+    font-size: 15px; 
+    padding: 20px; 
+    border-radius: 5px; 
+    box-shadow: 0px 0px 10px #999; 
+    z-index: 1000;
+    border: ${type === 'error' ? '1px solid #d8000c' : '1px solid #006400'};
+    min-width: 300px; /* Minimum width, but can grow */
+    max-width: 80%; /* Prevents the div from becoming too wide */
+    box-sizing: border-box;
+    white-space: normal; /* Ensures text wraps */
+    overflow-wrap: break-word; /* Breaks words to prevent overflow */
+`);
+
+    el.innerHTML = `<span style="float:right; cursor:pointer; color:#000;">&times;</span><p style="margin:0; text-align:left;">${msg}</p>`;
+
+    // Add style for the close button for consistency
+    var closeButton = el.querySelector('span');
+    closeButton.style.marginRight = '10px';
+    closeButton.style.marginTop = '5px';
+
+    document.body.appendChild(el);
+
+    // Close button functionality
+    closeButton.onclick = function() {
+      document.body.removeChild(el);
+    };
+
+  }
+
+
+  async displayTableWithData(data, type) {
+  var el = document.createElement('div');
+  el.setAttribute('style', `
+    position: fixed; 
+    bottom: 10%; 
+    left: 50%; 
+    transform: translateX(-50%);
+    background-color: ${type === 'error' ? '#ffdddd' : '#ddffdd'}; 
+    color: ${type === 'error' ? '#d8000c' : '#006400'}; 
+    font-size: 10px; 
+    padding: 20px; 
+    border-radius: 5px; 
+    box-shadow: 0px 0px 10px #999; 
+    z-index: 1000;
+    border: ${type === 'error' ? '1px solid #d8000c' : '1px solid #006400'};
+    min-width: 300px;
+    max-width: 80%;
+    box-sizing: border-box;
+    overflow-x: auto; /* Allow horizontal scrolling for wide tables */
+    `);
+
+  // Creating table structure
+  //var table = '<table style="width: 100%; border-collapse: collapse;"><tr style="background-color: #f2f2f2;"><th>Artifact_id</th><th>AndNode_Id</th><th>ReadNodes</th><th>WriteNodes</th><th>KillNodes</th></tr>';
+    let table = '<table style="border-collapse: collapse; width: 100%;">';
+    table += '<tr style="background-color: #f2f2f2;"><th>Artifact_id</th><th>AndNode_Id</th><th>ReadNodes</th><th>WriteNodes</th><th>KillNodes</th><th>Level</th><th>OfType</th></tr>';
+
+  // Loop through each data item and add table rows
+  data.forEach(item => {
+    table += `<tr>
+            <td>${item.Artifact_id || ''}</td>
+            <td>${item.AndNode_Id || ''}</td>
+            <td>${item.ReadNodes ? item.ReadNodes.join(', ') : ''}</td>
+            <td>${item.WriteNodes ? item.WriteNodes.join(', ') : ''}</td>
+            <td>${item.KillNodes ? item.KillNodes.join(', ') : ''}</td>
+            <td>${item.Level || ''}</td>
+            <td>${item.AnomalyType || ''}</td>
+          </tr>`;
+  });
+
+  table += '</table>';
+  el.innerHTML = `<span style="float:right; cursor:pointer; color:#000;">&times;</span><div>${table}</div>`;
+
+  var closeButton = el.querySelector('span');
+  closeButton.style.marginRight = '10px';
+  closeButton.style.marginTop = '5px';
+
+  document.body.appendChild(el);
+
+  closeButton.onclick = function() {
+    document.body.removeChild(el);
+  };
+
+  }
+
+  async OurApproachTableWithData(data, type) {
+    var el = document.createElement('div');
+    el.setAttribute('style', `
+    position: fixed; 
+    bottom: 10%; 
+    left: 50%; 
+    transform: translateX(-50%);
+   background-color: #fff;
+    color: #333;
+    font-size: 13px; 
+    padding: 20px; 
+    border-radius: 5px; 
+    box-shadow: 0px 0px 10px #999; 
+    z-index: 1000;  
+    min-width: 300px;
+    max-width: 80%;
+    box-sizing: border-box;
+    overflow-x: auto;
+  `);
+
+    let table = '<table style="border-collapse: collapse; margin: 15px 0; font-size: 0.9em; min-width: 400px; width: 100%; box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);">';
+    table += '<tr style="background-color: #EC7E46; color: #ffffff; text-align: left;">';
+    table += '<th style="padding: 12px 15px;">Artifact id</th><th style="padding: 12px 15px;">AND id</th><th style="padding: 12px 15px;">ReadNodes</th><th style="padding: 12px 15px;">WriteNodes</th><th style="padding: 12px 15px;">KillNodes</th><th style="padding: 12px 15px;">Level</th><th style="padding: 12px 15px;">AnomalyType</th><th style="padding: 12px 15px;">Code</th></tr>';
+
+    // Loop through each data item and add table rows
+    data.forEach(item => {
+      table += `<tr style="border-bottom: 1px solid #dddddd;">
+                <td style="padding: 12px 15px;">${item.Artifact_id || ''}</td>
+                <td style="padding: 12px 15px;">${item.AndNode_Id || ''}</td>
+                <td style="padding: 12px 15px;">${item.ReadNodes ? item.ReadNodes.join(', ') : ''}</td>
+                <td style="padding: 12px 15px;">${item.WriteNodes ? item.WriteNodes.join(', ') : ''}</td>
+                <td style="padding: 12px 15px;">${item.KillNodes ? item.KillNodes.join(', ') : ''}</td>
+                <td style="padding: 12px 15px;">${item.Level || ''}</td>
+                <td style="padding: 12px 15px;">${item.AnomalyType || ''}</td>
+                <td style="padding: 12px 15px;">${item.Code || ''}</td>   
+              </tr>`;
+    });
+
+    table += '</table>';
+    el.innerHTML = `<span style="float:right; cursor:pointer; color:#000;">&times;</span><div>${table}</div>`;
+
+    var closeButton = el.querySelector('span');
+    closeButton.style.marginRight = '10px';
+    closeButton.style.marginTop = '5px';
+
+    document.body.appendChild(el);
+
+    closeButton.onclick = function() {
+      document.body.removeChild(el);
+    };
+  }
+
+
+  // PrevMethodRenderTable
+  async PrevMethodRenderTable(data) {
+    var el = document.createElement('div');
+    el.setAttribute('style', `
+    position: fixed; 
+    bottom: 10%; 
+    left: 50%; 
+    transform: translateX(-50%);
+    background-color: #fff; 
+    color: #333; 
+    padding: 20px; 
+    border-radius: 5px; 
+    box-shadow: 0px 0px 10px #999;
+    z-index: 1000;
+    min-width: 300px;
+    max-width: 80%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    max-height: 33vh; /* 1/3 of the viewport height */
+overflow-y: auto; /* Enables vertical scrolling */
+  `);
+
+    // Create table
+    var table = document.createElement('table');
+    table.setAttribute('style', `
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.9em;
+    min-width: 400px;
+    width: 100%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  `);
+    var thead = document.createElement('thead');
+    thead.setAttribute('style', `
+    background-color: #f3f3f3; // darkRed, D8000C  green 009879 //redf FF0000  f3f3f3
+    color: #FFFFFF;
+    text-align: left;
+  `);
+    var tbody = document.createElement('tbody');
+    tbody.setAttribute('style', `
+    background-color: #f3f3f3;
+  `);
+
+    // Define column headers
+    var headers = [ 'ArtifactId', 'Code', 'Type' , 'WriteNode', 'WriteNode2', 'ReadNode','KillNode' ];
+    var tr = document.createElement('tr');
+    headers.forEach(header => {
+      var th = document.createElement('th');
+      th.textContent = header;
+      th.setAttribute('style', `
+      padding: 12px 15px;
+        color: #e75d18;
+      border-right: 1px solid #dddddd;
+    `);
+      tr.appendChild(th);
+    });
+    thead.appendChild(tr);
+
+    // Populate data rows
+    data.forEach(item => {
+      var tr = document.createElement('tr');
+      tr.setAttribute('style', 'border-bottom: 1px solid #dddddd;');
+      headers.forEach(header => {
+        var td = document.createElement('td');
+        td.textContent = item[header];
+        td.setAttribute('style', 'padding: 12px 15px;');
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+
+    // Construct the table
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    el.appendChild(table);
+
+    // Add a close button
+    var closeButton = document.createElement('span');
+    closeButton.textContent = '×';
+    closeButton.setAttribute('style', `
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+    color: #000;
+    font-size: 24px;
+  `);
+
+    // Append the close button and setup the click event
+    el.appendChild(closeButton);
+    closeButton.onclick = function() {
+      document.body.removeChild(el);
+    };
+
+    // Append the whole element to the body
+    document.body.appendChild(el);
   }
 
   async startInstance(processDefinition, options) {
@@ -211,6 +519,33 @@ export default class CamundaAPI {
     }
   }
 
+  async fetchAbs(path, options = {}) {
+    const url = path;
+    const headers = {
+      ...options.headers,
+      ...this.getHeaders()
+    };
+
+    try {
+      const signal = options.signal || this.setupTimeoutSignal();
+
+      return await this.fetchAbs(url, {
+        ...options,
+        headers,
+        signal
+      });
+    } catch (error) {
+      log('failed to fetch', error);
+
+      return {
+        url,
+        json: () => {
+          return {};
+        }
+      };
+    }
+  }
+
   setupTimeoutSignal(timeout = FETCH_TIMEOUT) {
     const controller = new AbortController();
 
@@ -238,6 +573,7 @@ const FORBIDDEN = 'FORBIDDEN';
 const NOT_FOUND = 'NOT_FOUND';
 const INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR';
 const UNAVAILABLE_ERROR = 'UNAVAILABLE_ERROR';
+const CONCURRENT_ANOMALY = 'CONCURRENT_ANOMALY';
 
 export const ApiErrors = {
   NO_INTERNET_CONNECTION,
@@ -258,7 +594,8 @@ export const ApiErrorMessages = {
   [ FORBIDDEN ]: 'This user is not permitted to deploy. Please use different credentials or get this user enabled to deploy.',
   [ NOT_FOUND ]: 'Should point to a running Camunda REST API.',
   [ INTERNAL_SERVER_ERROR ]: 'Camunda is reporting an error. Please check the server status.',
-  [ UNAVAILABLE_ERROR ]: 'Camunda is reporting an error. Please check the server status.'
+  [ UNAVAILABLE_ERROR ]: 'Camunda is reporting an error. Please check the server status.',
+  [CONCURRENT_ANOMALY ]: 'Artifact Anomaly detector is reporting an error. Please ceck the log for details.'
 };
 
 export class ConnectionError extends Error {
@@ -290,6 +627,19 @@ export class DeploymentError extends Error {
     this.details = ApiErrorMessages[this.code];
 
     this.problems = body && body.message;
+  }
+}
+
+export class AnomalyError extends Error {
+
+  constructor(detials, problems) {
+    super('Anomaly free failed');
+
+    this.code = 'concurrent Anomaly';
+
+    this.details = detials;
+
+    this.problems = problems ;
   }
 }
 
@@ -332,7 +682,9 @@ function getResponseErrorCode(response) {
   case 500:
     return INTERNAL_SERVER_ERROR;
   case 503:
-    return UNAVAILABLE_ERROR;
+      return UNAVAILABLE_ERROR;
+    case 601:
+      return CONCURRENT_ANOMALY;
   }
 }
 
