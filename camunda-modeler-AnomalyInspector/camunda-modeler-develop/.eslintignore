@@ -1,0 +1,10 @@
+app/node_modules/
+app/public/
+app/preload/
+client/node_modules/
+client/build/
+coverage/
+dist/
+docs/
+**/node_modules
+tmp

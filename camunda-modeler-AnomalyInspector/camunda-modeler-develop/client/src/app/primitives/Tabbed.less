@@ -1,0 +1,214 @@
+:root {
+  --tab-max-width: 220px;
+  --tab-bar-background-color: var(--color-grey-225-10-85);
+  --tab-bar-border-color: var(--color-grey-225-10-75);
+  --tabs-container-background-color: var(--color-grey-225-10-85);
+  --tab-font-color: var(--color-grey-225-10-15);
+  --tab-font-size: var(--font-size-default);
+  --tab-icon-color: var(--color-grey-225-10-35);
+  --tab-border-right-color: var(--color-grey-225-10-75);
+  --tab-close-background-color: var(--color-grey-225-10-85);
+  --tab-close-hover-background-color: var(--color-grey-225-10-80);
+  --tab-close-icon-fill-color: var(--color-grey-225-10-15);
+  --tab-dirty-icon-fill-color: var(--color-grey-225-10-75);
+  --tab-line-active-background-color: var(--color-grey-225-10-15);
+  --tab-line-hover-background-color: var(--color-grey-225-10-55);
+  --tab-dirty-marker-background-color: var(--color-blue-205-100-50);
+  --tab-dirty-marker-border-color: var(--color-blue-205-100-45);
+  --tab-dirty-marker-box-shadow-color: var(--color-grey-225-10-85);
+}
+
+.tab-base() {
+  position: relative;
+  flex: 1;
+}
+
+:local(.TabContainer) {
+  position: relative;
+
+  display: flex;
+  flex: 1;
+
+  &.tab {
+    .tab-base();
+  }
+}
+
+:local(.LinksContainer) {
+  display: flex;
+  justify-content: space-between;
+
+  position: relative;
+  z-index: 100;
+
+  flex-basis: 28px;
+  height: 32px;
+  background: var(--tab-bar-background-color);
+  border-bottom: 1px solid var(--tab-bar-border-color);
+
+  .tabs-container {
+    flex-grow: 1;
+    display: flex;
+    margin-right: 40px;
+
+    white-space: nowrap;
+    background-color: var(--tabs-container-background-color);
+  }
+
+  .tab {
+    position: relative;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 20px;
+    max-width: var(--tab-max-width);
+    color: var(--tab-font-color);
+    border-right: 1px solid var(--tab-border-right-color);
+    user-select: none;
+
+    .tab__content {
+      position: absolute;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .tab__type {
+      pointer-events: all;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      align-self: center;
+      margin: 0 6px;
+  
+      svg {
+        fill: var(--tab-icon-color);
+        height: 16px;
+        width: 16px;
+      }
+    }
+
+    .tab__name {
+      pointer-events: all;
+      line-height: 26px;
+      font-size: var(--tab-font-size);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: clip;
+      margin: 0 28px 0 0;
+    }
+
+    .tab__dirty-marker {
+      pointer-events: all;
+      z-index: 5;
+      content: '';
+      position: absolute;
+      top: 7px;
+      left: 16px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--tab-dirty-marker-background-color);
+      border: 1px solid var(--tab-dirty-marker-border-color);
+      box-sizing: content-box;
+      box-shadow: 0 0 0 2px var(--tab-dirty-marker-box-shadow-color);
+    }
+
+    .tab__close {
+      position: absolute;
+      pointer-events: all;
+      right: 6px;
+      z-index: 4;
+      padding: 0 2px;
+      line-height: 26px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: var(--tab-close-background-color);
+
+      .tab__icon-close {
+        margin: auto 0 auto -1px;
+        fill: var(--tab-close-icon-fill-color);
+      }
+
+      &:hover {
+        background-color: var(--tab-close-hover-background-color);
+      }
+    }
+
+    &.tab--small {
+      &:not(.tab--active) {
+        .tab__name {
+          margin-right: 6px;
+        }
+      }
+    }
+
+    &.tab--smaller {
+      .tab__type {
+        margin: auto;
+      }
+
+      .tab__name {
+        display: none;
+      }
+
+      .tab__dirty-marker {
+        left: calc(50% + 3px);
+      }
+
+      &.tab--active {
+        .tab__close {
+          position: relative;
+          right: 0;
+          margin: auto;
+        }
+
+        .tab__dirty-marker {
+          left: calc(50% + 6px);
+        }
+
+        .tab__type {
+          display: none;
+        }
+      }
+    }
+
+    &.tab--placeholder {
+      font-style: italic;
+      
+      .tab__content {
+        padding-left: 12px;
+      }
+    }
+
+    /* tab bottom lines (active + hover) */
+    &.tab--active::after,
+    &:not(.tab--active):hover::after {
+      z-index: 3;
+      position: absolute;
+      content: '';
+      bottom: -1px;
+      left: -1px;
+      right: -1px;
+      height: 2px;
+    }
+
+    &:not(.tab--active):hover::after {
+      background-color: var(--tab-line-hover-background-color);
+    }
+
+    &.tab--active::after {
+      background-color: var(--tab-line-active-background-color);
+    }
+  }
+}
+
+:local(.Tab) {
+  .tab-base();
+}

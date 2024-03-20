@@ -1,0 +1,75 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Classes]
+
+[HKEY_CURRENT_USER\Software\Classes\.bpmn]
+@="CamundaModeler.BPMN"
+
+[HKEY_CURRENT_USER\Software\Classes\.cmmn]
+@="CamundaModeler.CMMN"
+
+[HKEY_CURRENT_USER\Software\Classes\.dmn]
+@="CamundaModeler.DMN"
+
+[HKEY_CURRENT_USER\Software\Classes\.form]
+@="CamundaModeler.FORM"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.BPMN]
+@="BPMN file"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.BPMN\DefaultIcon]
+@="__CWD__,0"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.BPMN\shell]
+@="open"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.BPMN\shell\open]
+@="Open with Camunda Modeler"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.BPMN\shell\open\command]
+@="__CWD__ \"%1\""
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.CMMN]
+@="CMMN file"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.CMMN\DefaultIcon]
+@="__CWD__,0"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.CMMN\shell]
+@="open"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.CMMN\shell\open]
+@="Open with Camunda Modeler"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.CMMN\shell\open\command]
+@="__CWD__ \"%1\""
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.DMN]
+@="DMN file"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.DMN\DefaultIcon]
+@="__CWD__,0"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.DMN\shell]
+@="open"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.DMN\shell\open]
+@="Open with Camunda Modeler"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.DMN\shell\open\command]
+@="__CWD__ \"%1\""
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.FORM]
+@="FORM file"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.FORM\DefaultIcon]
+@="__CWD__,0"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.FORM\shell]
+@="open"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.FORM\shell\open]
+@="Open with Camunda Modeler"
+
+[HKEY_CURRENT_USER\Software\Classes\CamundaModeler.FORM\shell\open\command]
+@="__CWD__ \"%1\""

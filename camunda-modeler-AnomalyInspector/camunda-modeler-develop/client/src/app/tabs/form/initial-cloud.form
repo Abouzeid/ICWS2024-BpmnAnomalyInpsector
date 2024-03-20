@@ -1,0 +1,7 @@
+{
+  "type": "default",
+  "id": "Form_{{ ID }}",
+  "components": [],
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "{{ CAMUNDA_CLOUD_VERSION }}"
+}

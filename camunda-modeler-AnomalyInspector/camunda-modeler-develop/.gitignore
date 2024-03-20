@@ -1,0 +1,11 @@
+.DS_Store
+node_modules
+dist/
+app/public/
+app/preload/
+plugins/**
+.vscode
+coverage
+.nyc_output
+.linked-dependencies
+tmp
