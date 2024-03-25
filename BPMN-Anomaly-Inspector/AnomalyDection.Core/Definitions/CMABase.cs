@@ -47,4 +47,11 @@ namespace AnomalyDection.Core.Definitions
         public string Code { get; set; } = "ConWR";
 
     }
+
+    public class CorruptedSend : CMABase
+    {
+        public string Level { get; set; } = "Error";
+        public string Code { get; set; } = "CorruptedSend";
+        public string ReadNodes { get; set; }
+    }
 }

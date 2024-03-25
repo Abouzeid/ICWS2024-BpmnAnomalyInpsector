@@ -10,8 +10,8 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 {
     public class Prev_SP_Tree_Approach
     {
-        List<BaseConCurnt> anomalies = new List<BaseConCurnt>();
-        public List<BaseConCurnt> GetAnomalies()
+        List<ConCurrentAnomlayBase> anomalies = new List<ConCurrentAnomlayBase>();
+        public List<ConCurrentAnomlayBase> GetAnomalies()
         {
             return anomalies;
         }
@@ -44,23 +44,27 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                 case node_types.END:
                     return new List<artifact_operation_in_node>();
                 case node_types.ACTIVITY:
+
+                    CheckICCA_Infected(spnode);
+
                     if (spnode.left_child != null)
                     {
-                        var val = Original_sptree_CAD(spnode.left_child); // union OPeration
+                        var val = Original_sptree_CAD(spnode.left_child);
                         spnode.artifact_set.AddRange(val);
                     }
                     return spnode.artifact_set;
                 case node_types.LOOP:
                     {
-                        var temp = Original_sptree_CAD(spnode.right_child.FirstOrDefault());
-                        spnode.artifact_set.AddRange(temp);
+                        CheckICCA_Infected(spnode);
 
-                        temp = Original_sptree_CAD(spnode.left_child);
-                        spnode.artifact_set.AddRange(temp);
+                        spnode.artifact_set.AddRange(Original_sptree_CAD(spnode.right_child.FirstOrDefault()));
+
+                        spnode.artifact_set.AddRange(Original_sptree_CAD(spnode.left_child));
                         return spnode.artifact_set;
                     }
                 case node_types.XOR:
                     {
+                        CheckICCA_Infected(spnode);
                         if (spnode.node_id.Contains("joint"))
                             return new List<artifact_operation_in_node>();
 
@@ -143,6 +147,15 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                                             ////Console.WriteLine("CCA3 ______R and K/////");
                                             ////Console.WriteLine($"{item_i.Operation}, {item_j.Operation}, {item_i.node_id}, {item_j.node_id}, artifact {item_i.artifact_id}");
                                         }
+
+
+                                        //if ((item_i.Operation == operation_types.Write && item_j.Operation == operation_types.Read ||
+                                        //    item_i.Operation == operation_types.Read && item_j.Operation == operation_types.Write) && item_i.artifact_id == item_j.artifact_id)
+                                        //{
+
+                                        //    Console.WriteLine($"CCA4 ______R and W/////--------------->{spnode.node_id}");
+                                        //    Console.WriteLine($"{item_i.Operation}, {item_j.Operation},{item_i.node_id},  {item_j.node_id}, artifact {item_i.artifact_id}");
+                                        //}
                                     }
                                 }
                             }
@@ -151,10 +164,8 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
                         if (spnode.left_child != null)
                         {
-                            var temp = Original_sptree_CAD(spnode.left_child);
-                            spnode.artifact_set.AddRange(temp);
+                            spnode.artifact_set.AddRange(Original_sptree_CAD(spnode.left_child));
                         }
-                        //return spnode.artifact_set.Union(CAD(spnode.left_child).ToList()).ToList();
 
                         return spnode.artifact_set;
                     }
@@ -164,16 +175,31 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
             return null;
         }
 
+        private void CheckICCA_Infected(SpTree_Node spnode)
+        {
+            foreach (var item in spnode.artifact_set)
+            {
+                var isInfected = GetAnomalies().Any(x => x.artifactId == item.artifact_id
+                 && item.Operation == operation_types.Read);
+
+                if (isInfected)
+                    anomalies.Add(new Infected()
+                    {
+                        artifactId = item.artifact_id,
+                        ReadNode = spnode.node_id
+                    });
+            }
+        }
     }
 
-    public class BaseConCurnt
+    public class ConCurrentAnomlayBase
     {
         [JsonProperty(PropertyName = "ArtifactId")]
         public string artifactId { get; set; }
         public string Type { get; set; } = "Concurrent";
     }
 
-    public class CCA1 : BaseConCurnt
+    public class CCA1 : ConCurrentAnomlayBase
     {
         [JsonProperty(PropertyName = "WriteNode")]
         public string WriteNode1 { get; set; }
@@ -183,18 +209,24 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
     }
 
-    public class CCA2 : BaseConCurnt
+    public class CCA2 : ConCurrentAnomlayBase
     {
         public string WriteNode { get; set; }
         public string KillNode { get; set; }
         public string Code { get; set; } = "CCA2";
     }
 
-    public class CCA3 : BaseConCurnt
+    public class CCA3 : ConCurrentAnomlayBase
     {
         public string ReadNode { get; set; }
         public string KillNode { get; set; }
         public string Code { get; set; } = "CCA3";
+    }
+
+    public class Infected : ConCurrentAnomlayBase
+    {
+        public string ReadNode { get; set; }
+        public string Code { get; set; } = "Infected";
     }
 
 }

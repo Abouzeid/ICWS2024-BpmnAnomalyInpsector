@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace AnomalyDection.Core.ConcurrentAnomaly
 {
@@ -24,6 +25,9 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
             return anomalyResult;
         }
 
+        string currentAnd = string.Empty;
+        List<NodesPossibleCorrupt> nodesPossibleCorrupts = new List<NodesPossibleCorrupt>();
+
         /// <summary>
         /// Detect Concurrent Anomaly new Statistical branch approach algorithm
         /// </summary>
@@ -32,11 +36,12 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
         public Dictionary<string, NodesOpArtifact> AOC(SpTree_Node spnode)
         {
 
-            //Console.WriteLine(spnode.node_id);
+            Console.WriteLine(spnode.node_id);
 
             if (spnode.node_type != node_types.START && spnode.node_type != node_types.END && spnode.node_type != node_types.AND)
             {
-                if (spnode.operation_sequence.Any())
+                Console.WriteLine($"has operation sequence {spnode.node_id}");
+                if (spnode.operation_sequence.Any() && !string.IsNullOrEmpty(currentAnd))
                 {
                     foreach (var item in spnode.operation_sequence)
                     {
@@ -47,6 +52,14 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
                         if (item.operation == operation_types.Read)
                         {
+                            nodesPossibleCorrupts.Add(
+                               new NodesPossibleCorrupt()
+                               {
+                                   AND_id = currentAnd,
+                                   nodeId = spnode.node_id,
+                                   artifactId = item.artifact_id
+                               });
+
                             if (spnode.ArtifactOpMap[item.artifact_id].ReadNodes == null)
                                 spnode.ArtifactOpMap[item.artifact_id].ReadNodes = new List<string>() { spnode.node_id };
                             else
@@ -70,6 +83,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                         }
                     }
                 }
+                Console.WriteLine($"Populated artifact OP Map for node {spnode.node_id} + {spnode.ArtifactOpMap.Count} ");
             }
 
             switch (spnode.node_type)
@@ -79,6 +93,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                 case node_types.END:
                     return null;
                 case node_types.ACTIVITY:
+
                     if (spnode.left_child != null)
                     {
                         Merge(spnode.ArtifactOpMap, AOC(spnode.left_child));
@@ -86,6 +101,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                     return spnode.ArtifactOpMap;
                 case node_types.LOOP:
                     {
+
                         Merge(spnode.ArtifactOpMap, AOC(spnode.right_child.FirstOrDefault()));
 
                         Merge(spnode.ArtifactOpMap, AOC(spnode.left_child));
@@ -111,6 +127,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                     }
                 case node_types.AND:
                     {
+                        currentAnd = spnode.node_id;
                         var all_branchesData = new Dictionary<string, BranchesInfo>();
 
                         for (int i = 0; i < spnode.right_child.Count; i++)
@@ -129,29 +146,29 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                                     });
                                 }
 
+
+                                if (pair.Value.WriteNodes.Count > 0)
                                 {
-                                    if (pair.Value.WriteNodes.Count > 0)
-                                    {
-                                        all_branchesData[pair.Key].Write.Add(i, pair.Value.WriteNodes);
-                                    }
-
-                                    if (pair.Value.ReadNodes.Count > 0)
-                                    {
-                                        all_branchesData[pair.Key].Read.Add(i, pair.Value.ReadNodes);
-                                    }
-
-                                    if (pair.Value.KillNodes.Count > 0)
-                                    {
-                                        all_branchesData[pair.Key].Kill.Add(i, pair.Value.KillNodes);
-                                    }
+                                    all_branchesData[pair.Key].Write.Add(i, pair.Value.WriteNodes);
                                 }
+
+                                if (pair.Value.ReadNodes.Count > 0)
+                                {
+                                    all_branchesData[pair.Key].Read.Add(i, pair.Value.ReadNodes);
+                                }
+
+                                if (pair.Value.KillNodes.Count > 0)
+                                {
+                                    all_branchesData[pair.Key].Kill.Add(i, pair.Value.KillNodes);
+                                }
+
                             }
 
                             Merge(spnode.ArtifactOpMap, artifacts_info);
                         }
 
-                        DetectFor_Current_AND(spnode, all_branchesData);
-
+                        Detect_Concurrent_Anomalies(spnode, all_branchesData);
+                        CheckICCA_Infected();
                         if (spnode.left_child != null)
                         {
                             var temp = AOC(spnode.left_child);
@@ -164,10 +181,12 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                     break;
             }
             return null;
-        }      
+        }
 
-        private void DetectFor_Current_AND(SpTree_Node and_spnode, Dictionary<string, BranchesInfo> andBranchesStats)
+        private void Detect_Concurrent_Anomalies(SpTree_Node and_spnode, Dictionary<string, BranchesInfo> andBranchesStats)
         {
+            Console.WriteLine($" DCA {and_spnode.node_id}");
+
             foreach (var element in andBranchesStats)
             {
                 var artifact = element.Value;
@@ -187,8 +206,8 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
 
                     //Console.WriteLine("======================CWWA================================");
-                  //  var serilaized = JsonConvert.SerializeObject(cwwa, Newtonsoft.Json.Formatting.Indented);
-                   anomalyResult.Add(cwwa);
+                    //  var serilaized = JsonConvert.SerializeObject(cwwa, Newtonsoft.Json.Formatting.Indented);
+                    anomalyResult.Add(cwwa);
                     //Console.WriteLine(serilaized);
                     //Console.WriteLine("==========================================================");
                 }
@@ -228,7 +247,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                     if (cwra.ReadNodes.Count > 0)
                     {
                         //Console.WriteLine("=========Write=============CWRA===============READ====");
-                       // var serilaized = JsonConvert.SerializeObject(cwra, Newtonsoft.Json.Formatting.Indented);
+                        // var serilaized = JsonConvert.SerializeObject(cwra, Newtonsoft.Json.Formatting.Indented);
                         anomalyResult.Add(cwra);
                         //Console.WriteLine(serilaized);
                         //Console.WriteLine("======================================================");
@@ -270,7 +289,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                     if (cwka.WriteNodes.Count > 0)
                     {
                         //Console.WriteLine("=========Write=============CWKA===============Kill====");
-                       // var serilaized = JsonConvert.SerializeObject(cwka, Newtonsoft.Json.Formatting.Indented);
+                        // var serilaized = JsonConvert.SerializeObject(cwka, Newtonsoft.Json.Formatting.Indented);
                         anomalyResult.Add(cwka);
                         //Console.WriteLine(serilaized); 
                         //Console.WriteLine("======================================================");
@@ -365,5 +384,34 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
             }
         }
 
+
+        private void CheckICCA_Infected()
+        {
+            foreach (var anElement in nodesPossibleCorrupts)
+            {
+                var isInfected = GetAnomalyResult().Any(x => x.Artifact_id == anElement.artifactId);
+
+                if (isInfected)
+                {
+                    if (!anomalyResult.Any(x => x is CorruptedSend
+                    && x.Artifact_id == anElement.artifactId && x.AndNode_Id == anElement.AND_id
+                    && ((CorruptedSend)x).ReadNodes == anElement.nodeId))
+                        anomalyResult.Add(new CorruptedSend()
+                        {
+                            Artifact_id = anElement.artifactId,
+                            ReadNodes = anElement.nodeId,
+                            AndNode_Id = anElement.AND_id,
+                        });
+                }
+            }
+
+        }
+    }
+
+    internal struct NodesPossibleCorrupt
+    {
+        public string AND_id;
+        public string nodeId;
+        public string artifactId;
     }
 }

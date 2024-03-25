@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1gsxyx5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.22.0-dev" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
-  <bpmn:process id="Process_0htdwux" isExecutable="true">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1gsxyx5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.19.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
+  <bpmn:process id="Process_0htdwux" isExecutable="true" camunda:historyTimeToLive="5">
     <bpmn:startEvent id="startNode" name="startNode">
       <bpmn:outgoing>Flow_1lpci0x</bpmn:outgoing>
     </bpmn:startEvent>
@@ -24,7 +24,7 @@
     <bpmn:task id="Activity_Customer_Service" name="Customer Service and Support">
       <bpmn:extensionElements>
         <camunda:inputOutput>
-          <camunda:outputParameter name="Product_Inof" />
+          <camunda:outputParameter name="Product_Info" />
         </camunda:inputOutput>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0efjeh1</bpmn:incoming>
@@ -136,10 +136,6 @@ Read(OrderInfo)</bpmn:text>
       <bpmndi:BPMNShape id="Gateway_0r2xoph_di" bpmnElement="Gateway_1eea60s">
         <dc:Bounds x="845" y="265" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Association_036xyc1_di" bpmnElement="Association_036xyc1">
-        <di:waypoint x="464" y="150" />
-        <di:waypoint x="464" y="150" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="TextAnnotation_0tcedyd_di" bpmnElement="TextAnnotation_0tcedyd">
         <dc:Bounds x="608" y="38" width="124" height="41" />
         <bpmndi:BPMNLabel />
@@ -150,6 +146,10 @@ Read(OrderInfo)</bpmn:text>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_03urwv7_di" bpmnElement="TextAnnotation_03urwv7">
         <dc:Bounds x="416" y="282" width="120" height="34" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_1hzps6q_di" bpmnElement="TextAnnotation_1hzps6q">
+        <dc:Bounds x="340" y="120" width="186" height="30" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1bnj3r3_di" bpmnElement="Flow_1bnj3r3">
@@ -222,10 +222,10 @@ Read(OrderInfo)</bpmn:text>
         <di:waypoint x="485" y="310" />
         <di:waypoint x="484" y="316" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="TextAnnotation_1hzps6q_di" bpmnElement="TextAnnotation_1hzps6q">
-        <dc:Bounds x="340" y="120" width="186" height="30" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_036xyc1_di" bpmnElement="Association_036xyc1">
+        <di:waypoint x="464" y="150" />
+        <di:waypoint x="464" y="150" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
