@@ -44,7 +44,7 @@ namespace AnomalyDection.Core.Benchmark
         public void OurApproach()
         {
             OurApproachToConcurrent ourApproach = new();
-            ourApproach.AOC(sptree);
+            ourApproach.Traverse(sptree);
         }
     }
 

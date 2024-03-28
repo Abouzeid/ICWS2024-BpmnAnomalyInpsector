@@ -57,7 +57,7 @@ namespace BPMN_Anomaly_Inspector.Controllers
                 else
                 {
                     OurApproachToConcurrent ourApproach = new OurApproachToConcurrent();
-                    ourApproach.AOC(sptree);
+                    ourApproach.Traverse(sptree);
                     result = JsonConvert.SerializeObject(ourApproach.GetAnomalyResult());
                 }
                 if (!string.IsNullOrEmpty(result))
@@ -94,38 +94,8 @@ namespace BPMN_Anomaly_Inspector.Controllers
                
             });
 
-            return Accepted("Benchmark running in the background");
-        }
-
-        void MeasureAndLogApproaches(int testTimes, SpTree_Node sptree)
-        {
-            var results = "Approach,ExecutionTime(ms),MemoryUsage(bytes)\n";
-
-            for (int i = 0; i < testTimes; i++) // Run each approach x times
-            {
-                // Measure previous approach
-                OurApproachToConcurrent ourApproach = new();
-                var watch1 = Stopwatch.StartNew();
-                ourApproach.AOC(sptree);
-                watch1.Stop();
-
-                results += $"Our,{watch1.ElapsedMilliseconds}\n";
-
-                // Reset and measure the previous approach                            
-                Prev_SP_Tree_Approach prevApproach = new();
-                var watch2 = Stopwatch.StartNew();
-                prevApproach.Original_sptree_CAD(sptree);
-                watch2.Stop();
-
-                results += $"Previous,{watch2.ElapsedMilliseconds}\n";
-
-            }
-
-            // Save results to CSV
-            System.IO.File.WriteAllText("approach_results_compare.csv", results);
-        }
-
-
+            return Ok("Benchmark running in the background");
+        }       
 
     }
 

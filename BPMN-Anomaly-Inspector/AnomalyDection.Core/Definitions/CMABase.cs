@@ -52,6 +52,6 @@ namespace AnomalyDection.Core.Definitions
     {
         public string Level { get; set; } = "Error";
         public string Code { get; set; } = "CorruptedSend";
-        public string ReadNodes { get; set; }
+        public List<List<string>> ReadNodes { get; set; }
     }
 }

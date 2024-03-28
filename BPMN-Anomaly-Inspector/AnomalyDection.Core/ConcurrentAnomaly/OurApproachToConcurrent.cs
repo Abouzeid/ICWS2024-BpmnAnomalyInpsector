@@ -33,9 +33,8 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
         /// </summary>
         /// <param name="spnode"></param>
         /// <returns></returns>
-        public Dictionary<string, NodesOpArtifact> AOC(SpTree_Node spnode)
+        public Dictionary<string, NodesOpArtifact> Traverse(SpTree_Node spnode)
         {
-
             Console.WriteLine(spnode.node_id);
 
             if (spnode.node_type != node_types.START && spnode.node_type != node_types.END && spnode.node_type != node_types.AND)
@@ -43,45 +42,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                 Console.WriteLine($"has operation sequence {spnode.node_id}");
                 if (spnode.operation_sequence.Any() && !string.IsNullOrEmpty(currentAnd))
                 {
-                    foreach (var item in spnode.operation_sequence)
-                    {
-                        if (!spnode.ArtifactOpMap.ContainsKey(item.artifact_id))
-                        {
-                            spnode.ArtifactOpMap.Add(item.artifact_id, new NodesOpArtifact());
-                        }
-
-                        if (item.operation == operation_types.Read)
-                        {
-                            nodesPossibleCorrupts.Add(
-                               new NodesPossibleCorrupt()
-                               {
-                                   AND_id = currentAnd,
-                                   nodeId = spnode.node_id,
-                                   artifactId = item.artifact_id
-                               });
-
-                            if (spnode.ArtifactOpMap[item.artifact_id].ReadNodes == null)
-                                spnode.ArtifactOpMap[item.artifact_id].ReadNodes = new List<string>() { spnode.node_id };
-                            else
-                                spnode.ArtifactOpMap[item.artifact_id].ReadNodes?.Add(spnode.node_id);
-                        }
-
-                        if (item.operation == operation_types.Kill)
-                        {
-                            if (spnode.ArtifactOpMap[item.artifact_id].KillNodes == null)
-                                spnode.ArtifactOpMap[item.artifact_id].KillNodes = new List<string>() { spnode.node_id };
-                            else
-                                spnode.ArtifactOpMap[item.artifact_id].KillNodes?.Add(spnode.node_id);
-                        }
-
-                        if (item.operation == operation_types.Write)
-                        {
-                            if (spnode.ArtifactOpMap[item.artifact_id].WriteNodes == null)
-                                spnode.ArtifactOpMap[item.artifact_id].WriteNodes = new List<string>() { spnode.node_id };
-                            else
-                                spnode.ArtifactOpMap[item.artifact_id].WriteNodes?.Add(spnode.node_id);
-                        }
-                    }
+                    CollectArtifactOperations(spnode);
                 }
                 Console.WriteLine($"Populated artifact OP Map for node {spnode.node_id} + {spnode.ArtifactOpMap.Count} ");
             }
@@ -89,98 +50,163 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
             switch (spnode.node_type)
             {
                 case node_types.START:
-                    return AOC(spnode.left_child);
+                    return Traverse(spnode.left_child);
                 case node_types.END:
                     return null;
                 case node_types.ACTIVITY:
-
-                    if (spnode.left_child != null)
-                    {
-                        Merge(spnode.ArtifactOpMap, AOC(spnode.left_child));
-                    }
-                    return spnode.ArtifactOpMap;
+                    return ProcessActivityNode(spnode);
                 case node_types.LOOP:
                     {
-
-                        Merge(spnode.ArtifactOpMap, AOC(spnode.right_child.FirstOrDefault()));
-
-                        Merge(spnode.ArtifactOpMap, AOC(spnode.left_child));
-
-                        return spnode.ArtifactOpMap;
+                        return ProcessLoopNode(spnode);
                     }
                 case node_types.XOR:
                     {
-                        if (spnode.right_child != null)
-                        {
-                            for (int i = 0; i < spnode.right_child.Count; i++)
-                            {
-                                Merge(spnode.ArtifactOpMap, AOC(spnode.right_child[i]));
-                            }
-                        }
-
-                        if (spnode.left_child != null)
-                        {
-                            Merge(spnode.ArtifactOpMap, AOC(spnode.left_child));
-                        }
-
-                        return spnode.ArtifactOpMap;
+                        return ProcessXORNode(spnode);
                     }
                 case node_types.AND:
                     {
-                        currentAnd = spnode.node_id;
-                        var all_branchesData = new Dictionary<string, BranchesInfo>();
-
-                        for (int i = 0; i < spnode.right_child.Count; i++)
-                        {
-                            var artifacts_info = AOC(spnode.right_child[i]);
-
-                            foreach (var pair in artifacts_info)
-                            {
-                                if (all_branchesData.ContainsKey(pair.Key) == false)
-                                {
-                                    all_branchesData.Add(pair.Key, new BranchesInfo()
-                                    {
-                                        Kill = new Dictionary<int, List<string>>(),
-                                        Read = new Dictionary<int, List<string>>(),
-                                        Write = new Dictionary<int, List<string>>()
-                                    });
-                                }
-
-
-                                if (pair.Value.WriteNodes.Count > 0)
-                                {
-                                    all_branchesData[pair.Key].Write.Add(i, pair.Value.WriteNodes);
-                                }
-
-                                if (pair.Value.ReadNodes.Count > 0)
-                                {
-                                    all_branchesData[pair.Key].Read.Add(i, pair.Value.ReadNodes);
-                                }
-
-                                if (pair.Value.KillNodes.Count > 0)
-                                {
-                                    all_branchesData[pair.Key].Kill.Add(i, pair.Value.KillNodes);
-                                }
-
-                            }
-
-                            Merge(spnode.ArtifactOpMap, artifacts_info);
-                        }
-
-                        Detect_Concurrent_Anomalies(spnode, all_branchesData);
-                        CheckICCA_Infected();
-                        if (spnode.left_child != null)
-                        {
-                            var temp = AOC(spnode.left_child);
-                            Merge(spnode.ArtifactOpMap, temp);
-                        }
-
-                        return spnode.ArtifactOpMap;
+                        return ProcessANDNode(spnode);
                     }
                 default:
                     break;
             }
             return null;
+        }
+
+        private Dictionary<string, NodesOpArtifact> ProcessActivityNode(SpTree_Node spnode)
+        {
+            if (spnode.left_child != null)
+            {
+                Merge(spnode.ArtifactOpMap, Traverse(spnode.left_child));
+            }
+            return spnode.ArtifactOpMap;
+        }
+
+        private Dictionary<string, NodesOpArtifact> ProcessANDNode(SpTree_Node spnode)
+        {
+            currentAnd = spnode.node_id;
+            var all_branchesData = new Dictionary<string, BranchesInfo>();
+
+            for (int i = 0; i < spnode.right_child.Count; i++)
+            {
+                var artifacts_info = Traverse(spnode.right_child[i]);
+
+                foreach (var pair in artifacts_info)
+                {
+                    if (all_branchesData.ContainsKey(pair.Key) == false)
+                    {
+                        all_branchesData.Add(pair.Key, new BranchesInfo()
+                        {
+                            Kill = new Dictionary<int, List<string>>(),
+                            Read = new Dictionary<int, List<string>>(),
+                            Write = new Dictionary<int, List<string>>()
+                        });
+                    }
+
+
+                    if (pair.Value.WriteNodes.Count > 0)
+                    {
+                        all_branchesData[pair.Key].Write.Add(i, pair.Value.WriteNodes);
+                    }
+
+                    if (pair.Value.ReadNodes.Count > 0)
+                    {
+                        all_branchesData[pair.Key].Read.Add(i, pair.Value.ReadNodes);
+                    }
+
+                    if (pair.Value.KillNodes.Count > 0)
+                    {
+                        all_branchesData[pair.Key].Kill.Add(i, pair.Value.KillNodes);
+                    }
+
+                }
+
+                Merge(spnode.ArtifactOpMap, artifacts_info);
+            }
+
+            Detect_Concurrent_Anomalies(spnode, all_branchesData);
+            CheckICCA_Infected(spnode.node_id);
+            if (spnode.left_child != null)
+            {
+                var temp = Traverse(spnode.left_child);
+                Merge(spnode.ArtifactOpMap, temp);
+            }
+
+            return spnode.ArtifactOpMap;
+        }
+
+        private Dictionary<string, NodesOpArtifact> ProcessXORNode(SpTree_Node spnode)
+        {
+            if (spnode.right_child != null)
+            {
+                for (int i = 0; i < spnode.right_child.Count; i++)
+                {
+                    Merge(spnode.ArtifactOpMap, Traverse(spnode.right_child[i]));
+                }
+            }
+
+            if (spnode.left_child != null)
+            {
+                Merge(spnode.ArtifactOpMap, Traverse(spnode.left_child));
+            }
+
+            return spnode.ArtifactOpMap;
+        }
+
+        private Dictionary<string, NodesOpArtifact> ProcessLoopNode(SpTree_Node spnode)
+        {
+            Merge(spnode.ArtifactOpMap, Traverse(spnode.right_child.FirstOrDefault()));
+
+            Merge(spnode.ArtifactOpMap, Traverse(spnode.left_child));
+
+            return spnode.ArtifactOpMap;
+        }
+
+        private void CollectArtifactOperations(SpTree_Node spnode)
+        {
+            if (spnode.operation_sequence.Any() && !string.IsNullOrEmpty(currentAnd))
+            {
+                foreach (var item in spnode.operation_sequence)
+                {
+                    if (!spnode.ArtifactOpMap.ContainsKey(item.artifact_id))
+                    {
+                        spnode.ArtifactOpMap.Add(item.artifact_id, new NodesOpArtifact());
+                    }
+
+                    if (item.operation == operation_types.Read)
+                    {
+                        nodesPossibleCorrupts.Add(
+                           new NodesPossibleCorrupt()
+                           {
+                               AND_id = currentAnd,
+                               nodeId = spnode.node_id,
+                               artifactId = item.artifact_id
+                           });
+
+                        if (spnode.ArtifactOpMap[item.artifact_id].ReadNodes == null)
+                            spnode.ArtifactOpMap[item.artifact_id].ReadNodes = new List<string>() { spnode.node_id };
+                        else
+                            spnode.ArtifactOpMap[item.artifact_id].ReadNodes?.Add(spnode.node_id);
+                    }
+
+                    if (item.operation == operation_types.Kill)
+                    {
+                        if (spnode.ArtifactOpMap[item.artifact_id].KillNodes == null)
+                            spnode.ArtifactOpMap[item.artifact_id].KillNodes = new List<string>() { spnode.node_id };
+                        else
+                            spnode.ArtifactOpMap[item.artifact_id].KillNodes?.Add(spnode.node_id);
+                    }
+
+                    if (item.operation == operation_types.Write)
+                    {
+                        if (spnode.ArtifactOpMap[item.artifact_id].WriteNodes == null)
+                            spnode.ArtifactOpMap[item.artifact_id].WriteNodes = new List<string>() { spnode.node_id };
+                        else
+                            spnode.ArtifactOpMap[item.artifact_id].WriteNodes?.Add(spnode.node_id);
+                    }
+                }
+            }
+
         }
 
         private void Detect_Concurrent_Anomalies(SpTree_Node and_spnode, Dictionary<string, BranchesInfo> andBranchesStats)
@@ -385,7 +411,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
         }
 
 
-        private void CheckICCA_Infected()
+        private void CheckICCA_Infected(string nodeId)
         {
             foreach (var anElement in nodesPossibleCorrupts)
             {
@@ -393,15 +419,28 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
                 if (isInfected)
                 {
-                    if (!anomalyResult.Any(x => x is CorruptedSend
-                    && x.Artifact_id == anElement.artifactId && x.AndNode_Id == anElement.AND_id
-                    && ((CorruptedSend)x).ReadNodes == anElement.nodeId))
-                        anomalyResult.Add(new CorruptedSend()
+                    CorruptedSend entry = (CorruptedSend)anomalyResult?.FirstOrDefault(x => x is CorruptedSend
+                     && x.Artifact_id == anElement.artifactId && x.AndNode_Id == anElement.AND_id);
+
+                    if (null == entry)
+                    {
+                        var newRecord = new CorruptedSend()
                         {
                             Artifact_id = anElement.artifactId,
-                            ReadNodes = anElement.nodeId,
+                            ReadNodes = new List<List<string>>(),
                             AndNode_Id = anElement.AND_id,
-                        });
+                        };
+                        newRecord.ReadNodes.Add(new List<string>() { anElement.nodeId });
+                        anomalyResult.Add(newRecord);
+                    }
+                    else
+
+                    if (!entry.ReadNodes[0].Contains(anElement.nodeId))
+                    {
+                        var index = anomalyResult.IndexOf(entry);
+                        ((CorruptedSend)anomalyResult[index]).ReadNodes[0].Add(anElement.nodeId);
+                        
+                    }
                 }
             }
 
