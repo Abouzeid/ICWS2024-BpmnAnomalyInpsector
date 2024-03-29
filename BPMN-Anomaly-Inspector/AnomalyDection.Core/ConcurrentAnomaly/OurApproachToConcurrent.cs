@@ -91,9 +91,9 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
             {
                 var artifacts_i_info = Traverse(spnode.right_child[i]);
 
-                File.AppendAllLines("ProcessAND.txt", new[] { "-----------------branch data-------------------------------" });
+                //File.AppendAllLines("ProcessAND.txt", new[] { "-----------------branch data-------------------------------" });
 
-                File.AppendAllLines("ProcessAND.txt",[JsonConvert.SerializeObject(artifacts_i_info)]);
+                //File.AppendAllLines("ProcessAND.txt",[JsonConvert.SerializeObject(artifacts_i_info)]);
              
                 foreach (var pair in artifacts_i_info)
                 {
@@ -128,8 +128,8 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
                 Merge(spnode.ArtifactOpMap, artifacts_i_info);
             }
 
-            File.AppendAllLines("ProcessAND.txt",new []{ "--------all branches data----------------------------------------"});
-            File.AppendAllLines("ProcessAND.txt",[JsonConvert.SerializeObject(all_branchesData)]);
+            //File.AppendAllLines("ProcessAND.txt",new []{ "--------all branches data----------------------------------------"});
+            //File.AppendAllLines("ProcessAND.txt",[JsonConvert.SerializeObject(all_branchesData)]);
           
 
             Detect_Concurrent_Anomalies(spnode, all_branchesData);
