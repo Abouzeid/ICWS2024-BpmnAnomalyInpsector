@@ -21,9 +21,9 @@ namespace AnomalyDection.Core.Definitions
         public List<List<string>> Write_in_Branches { get; set; } = new List<List<string>>();
     }
 
-    public struct BranchesInfo
+    public struct BranchesRWKinfo
     {
-        public BranchesInfo()
+        public BranchesRWKinfo()
         {
         }
         // key is branch_id and value is Nodes that K/W/R on an artifact

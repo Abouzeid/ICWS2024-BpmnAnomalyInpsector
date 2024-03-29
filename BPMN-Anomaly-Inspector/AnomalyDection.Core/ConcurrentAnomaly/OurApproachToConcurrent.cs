@@ -85,17 +85,21 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
         private Dictionary<string, NodesOpArtifact> ProcessANDNode(SpTree_Node spnode)
         {
             currentAnd = spnode.node_id;
-            var all_branchesData = new Dictionary<string, BranchesInfo>();
+            var all_branchesData = new Dictionary<string, BranchesRWKinfo>();
 
             for (int i = 0; i < spnode.right_child.Count; i++)
             {
-                var artifacts_info = Traverse(spnode.right_child[i]);
+                var artifacts_i_info = Traverse(spnode.right_child[i]);
 
-                foreach (var pair in artifacts_info)
+                File.AppendAllLines("ProcessAND.txt", new[] { "-----------------branch data-------------------------------" });
+
+                File.AppendAllLines("ProcessAND.txt",[JsonConvert.SerializeObject(artifacts_i_info)]);
+             
+                foreach (var pair in artifacts_i_info)
                 {
                     if (all_branchesData.ContainsKey(pair.Key) == false)
                     {
-                        all_branchesData.Add(pair.Key, new BranchesInfo()
+                        all_branchesData.Add(pair.Key, new BranchesRWKinfo()
                         {
                             Kill = new Dictionary<int, List<string>>(),
                             Read = new Dictionary<int, List<string>>(),
@@ -121,8 +125,12 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
                 }
 
-                Merge(spnode.ArtifactOpMap, artifacts_info);
+                Merge(spnode.ArtifactOpMap, artifacts_i_info);
             }
+
+            File.AppendAllLines("ProcessAND.txt",new []{ "--------all branches data----------------------------------------"});
+            File.AppendAllLines("ProcessAND.txt",[JsonConvert.SerializeObject(all_branchesData)]);
+          
 
             Detect_Concurrent_Anomalies(spnode, all_branchesData);
             CheckICCA_Infected(spnode.node_id);
@@ -209,7 +217,7 @@ namespace AnomalyDection.Core.ConcurrentAnomaly
 
         }
 
-        private void Detect_Concurrent_Anomalies(SpTree_Node and_spnode, Dictionary<string, BranchesInfo> andBranchesStats)
+        private void Detect_Concurrent_Anomalies(SpTree_Node and_spnode, Dictionary<string, BranchesRWKinfo> andBranchesStats)
         {
             Console.WriteLine($" DCA {and_spnode.node_id}");
 
